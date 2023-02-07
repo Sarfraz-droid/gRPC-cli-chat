@@ -17,12 +17,12 @@ type ConnectClient interface {
 }
 
 type Pool struct {
-	cc func(int, string)
+	cc func(string, string)
 }
 
 var pool = Pool{}
 
-func UpdatePool(f func(int, string)) {
+func UpdatePool(f func(string, string)) {
 	pool.cc = f
 }
 
@@ -41,9 +41,9 @@ func (s *Server) SayHello(ctx context.Context, message *chat.HelloRequest) (*cha
 }
 
 func (s *Server) HandShake(ctx context.Context, message *chat.HandShakeRequest) (*chat.HelloReply, error) {
-	log.Printf("Handshake to : %d %s", message.Port, message.Name)
+	log.Printf("Handshake to : %s %s", message.Port, message.Name)
 
-	pool.cc(int(message.Port), message.Name)
+	pool.cc(message.Port, message.Name)
 
 	return &chat.HelloReply{
 	Message: "Handshake successful",

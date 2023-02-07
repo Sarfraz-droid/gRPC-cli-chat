@@ -12,7 +12,7 @@ message HelloReply {
 
 message HandShakeRequest {
     string name = 1;
-    int32 port = 2;
+    string port = 2;
 }
 
 service HelloService {

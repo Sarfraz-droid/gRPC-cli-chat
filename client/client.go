@@ -15,7 +15,7 @@ import (
 var pool = Pool{}
 
 func Input() {
-	var port int
+	var port string
 
 	color.Red("Enter the port number of the server you want to connect to: ")
 	fmt.Scanln(&port)
@@ -25,17 +25,18 @@ func Input() {
 		return
 	}
 
-	color.Red("Connecting to port %d", port)
+	color.Red("Connecting to port %s", port)
+
 
 	conn := db.GetDB().GetConnectionByPort(port)
-
+	// conn.Port = fmt.Sprintf(":%s", port)
 
 	InitializeChat(conn.Port, conn.Name)
 }
 
 
 func InitializeChat(
-	port int,
+	port string,
 	name string,
 ) {
 	if pool.DoesConnectionExist(port) {
@@ -52,14 +53,14 @@ func InitializeChat(
 
 type Pool struct {
 	isConnected bool
-	port int
+	port string
 	name string
 	conn *grpc.ClientConn
 	client chat.HelloServiceClient
-	connectedPorts []int
+	connectedPorts []string
 }
 
-func (d *Pool) DoesConnectionExist(port int) bool {
+func (d *Pool) DoesConnectionExist(port string) bool {
 	for _, c := range d.connectedPorts {
 		if c == port {
 			return true
@@ -90,13 +91,13 @@ func (d *Pool) SendMessage()  {
 	go d.SendMessage()
 }
 
-func (d *Pool) Connect(port int, name string) {
+func (d *Pool) Connect(port string, name string) {
 	d.port = port
 	d.name = name
 
-	log.Printf("Dialing to port %d", port)
+	log.Printf("Dialing to port %s", port)
 	
-	conn, err := grpc.Dial(":" + fmt.Sprint(port), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprint(port), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -107,13 +108,13 @@ func (d *Pool) Connect(port int, name string) {
 	d.conn = conn
 	d.client = chat.NewHelloServiceClient(conn)
 	message := chat.HandShakeRequest{
-		Port: int32(_db.GetCurrConnection().Port),
+		Port: _db.GetCurrConnection().Port,
 		Name: _db.GetCurrConnection().Name,
 	}
 
 	d.connectedPorts = append(d.connectedPorts, port)
 	d.isConnected = true
-	log.Printf("Sending handshake to server: %d %s", message.Port, message.Name)
+	log.Printf("Sending handshake to server: %s %s", d.port, d.name)
 
 	response, err := d.client.HandShake(context.Background(), &message)
 

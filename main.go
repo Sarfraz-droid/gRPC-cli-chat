@@ -32,14 +32,33 @@ func main() {
 	lis, err := net.Listen("tcp", ":" + fmt.Sprintf("%d", port))
 
 	if err != nil { 
-		log.Fatalf("Failed to listen to 9000: %v", err)
+		log.Fatalf("Failed to listen to %d: %v",port, err)
 	}
+	// fmt.Printf("IP address: %s",add)
+	// add, err := server.GetInterfaceIpv4Addr("en0")
 
+	// if err != nil {
+	// 	log.Fatalf("Failed to get IP address: %v", err)
+	// }
+
+	// fmt.Printf("IP address: %s",add)
+	ip, err := server.LocalIP()
+	if err != nil {
+		log.Fatalf("Failed to get IP address: %v", err)
+	}
+	fmt.Printf("IP address: %s",ip)
+	fmt.Println()
+	full_address := fmt.Sprintf("%s:%d", ip ,port)
+
+	// fmt.Println(server.)
+	// fmt.Println(server.GetOutboundIP())
+	// fmt.Println(full_address)
 	fmt.Print("Enter your name: ")
+
 	var name string;
 	fmt.Scanln(&name)
-	_db.AddConnection(port, name)
-	_db.SetCurrConnection(port, name)
+	_db.AddConnection(full_address, name)
+	_db.SetCurrConnection(full_address, name)
 	
 	chatServer.UpdatePool(client.InitializeChat)
 	s := chatServer.Server{}

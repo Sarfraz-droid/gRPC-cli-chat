@@ -9,11 +9,11 @@ import (
 )
 
 type Connection struct {
-	Port int `json:"port"`
+	Port string `json:"port"`
 	Name string `json:"name"`
 }
 
-func (c Connection) GetPort() int {
+func (c Connection) GetPort() string {
 	return c.Port
 }
 
@@ -55,7 +55,7 @@ func (d *DB) GetConnections() []Connection {
 	return d.list
 }
 
-func (d *DB) GetConnection(port int, name string) Connection {
+func (d *DB) GetConnection(port string, name string) Connection {
 	for _, c := range d.list {
 		if c.Port == port && c.Name == name {
 			return c
@@ -64,7 +64,7 @@ func (d *DB) GetConnection(port int, name string) Connection {
 	return Connection{}
 }
 
-func (d *DB) AddConnection(port int, name string) {
+func (d *DB) AddConnection(port string, name string) {
 	d.list = append(d.list, Connection{port, name})
 
 	log.Printf("Added connection: %v", d.list)
@@ -72,7 +72,7 @@ func (d *DB) AddConnection(port int, name string) {
 	d.UpdateJSON()
 }
 
-func (d *DB) RemoveConnection(port int, name string) {
+func (d *DB) RemoveConnection(port string, name string) {
 	for i, c := range d.list {
 		if c.Port == port && c.Name == name {
 			d.list = append(d.list[:i], d.list[i+1:]...)
@@ -120,11 +120,11 @@ func (d *DB) GetCurrConnection() Connection {
 	return d.curr
 }
 
-func (d *DB) SetCurrConnection(port int, name string) {
+func (d *DB) SetCurrConnection(port string, name string) {
 	d.curr = d.GetConnection(port, name)
 }
 
-func (d *DB) GetConnectionByPort(port int) Connection {
+func (d *DB) GetConnectionByPort(port string) Connection {
 	for _, c := range d.list {
 		if c.Port == port {
 			return c
