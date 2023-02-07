@@ -29,6 +29,11 @@ func main() {
 		log.Fatalf("Failed to get free port: %v", err)
 	}
 
+	ip := server.GetIP()
+	// server.GetPublicIP()
+	fmt.Printf("IP address: %s",ip)
+
+
 	lis, err := net.Listen("tcp", ":" + fmt.Sprintf("%d", port))
 
 	if err != nil { 
@@ -42,11 +47,6 @@ func main() {
 	// }
 
 	// fmt.Printf("IP address: %s",add)
-	ip, err := server.LocalIP()
-	if err != nil {
-		log.Fatalf("Failed to get IP address: %v", err)
-	}
-	fmt.Printf("IP address: %s",ip)
 	fmt.Println()
 	full_address := fmt.Sprintf("%s:%d", ip ,port)
 

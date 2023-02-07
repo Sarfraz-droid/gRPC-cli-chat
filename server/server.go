@@ -1,10 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 
 	"github.com/Sarfraz-droid/goBasics/db"
 	"github.com/fatih/color"
@@ -97,6 +100,10 @@ func LocalIP() (net.IP, error) {
 				ip = v.IP
 			}
 
+			// if IsPublicIP(ip) {
+			// 	return ip, nil
+			// }
+
 			if IsPrivateIP(ip) {
 				return ip, nil
 			}
@@ -128,4 +135,67 @@ func IsPrivateIP(ip net.IP) bool {
 	}
 
 	return false
+}
+
+
+func IsPublicIP(IP net.IP) bool {
+    if IP.IsLoopback() || IP.IsLinkLocalMulticast() || IP.IsLinkLocalUnicast() {
+        return false
+    }
+    if ip4 := IP.To4(); ip4 != nil {
+        switch {
+        case ip4[0] == 10:
+            return false
+        case ip4[0] == 172 && ip4[1] >= 16 && ip4[1] <= 31:
+            return false
+        case ip4[0] == 192 && ip4[1] == 168:
+            return false
+        default:
+            return true
+        }
+    }
+    return false
+}
+
+type IP struct {
+    Query string
+}
+
+
+func GetIP() string {
+    req, err := http.Get("http://ip-api.com/json/")
+    if err != nil {
+        return err.Error()
+    }
+    defer req.Body.Close()
+
+    body, err := ioutil.ReadAll(req.Body)
+    if err != nil {
+        return err.Error()
+    }
+
+    var ip IP
+    json.Unmarshal(body, &ip)
+
+    return ip.Query
+}
+
+func GetPublicIP() {
+		url := "https://api.ipify.org?format=text"	// we are using a pulib IP API, we're using ipify here, below are some others
+                                              // https://www.ipify.org
+                                              // http://myexternalip.com
+                                              // http://api.ident.me
+                                              // http://whatismyipaddress.com/api
+	fmt.Printf("Getting IP address from  ipify ...\n")
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	ip, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("My IP is:%s\n", ip)
+
 }
